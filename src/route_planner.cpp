@@ -36,7 +36,7 @@ void RoutePlanner::AddNeighbors(RouteModel::Node *current_node) {
     current_node->FindNeighbors();
     for(RouteModel::Node *node : current_node->neighbors){
         node->parent = current_node;
-        node->g_value += current_node->distance(*node);
+        node->g_value = current_node->g_value + current_node->distance(*node);
         node->h_value = CalculateHValue(node);
         open_list.push_back(node);
         node->visited = true;
@@ -54,10 +54,11 @@ void RoutePlanner::AddNeighbors(RouteModel::Node *current_node) {
 RouteModel::Node *RoutePlanner::NextNode() {
     RouteModel::Node *nextNode;
     std::sort(open_list.begin(), open_list.end(), [](const auto &first, const auto &second){
-        return (first->g_value + first->h_value) < (second->g_value + second->h_value); 
+		//node with the lowest sum will be sorted to the back
+        return (first->g_value + first->h_value) > (second->g_value + second->h_value); 
     });
-    nextNode = open_list[0];
-    open_list.erase(open_list.begin());
+    nextNode = open_list.back();
+    open_list.pop_back();
 
     return nextNode;
 }
@@ -111,9 +112,7 @@ void RoutePlanner::AStarSearch() {
             m_Model.path = ConstructFinalPath(current_node);
             return;
         }
-        else{
-            AddNeighbors(current_node);
-        }
+		AddNeighbors(current_node);
     }
 
 }
