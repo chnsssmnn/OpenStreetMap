@@ -34,12 +34,12 @@ float RoutePlanner::CalculateHValue(RouteModel::Node const *node) {
 
 void RoutePlanner::AddNeighbors(RouteModel::Node *current_node) {
     current_node->FindNeighbors();
-    for(RouteModel::Node *node : current_node->neighbors){
-        node->parent = current_node;
-        node->g_value = current_node->g_value + current_node->distance(*node);
-        node->h_value = CalculateHValue(node);
-        open_list.push_back(node);
-        node->visited = true;
+    for(auto *neighbor : current_node->neighbors){
+        neighbor->parent = current_node;
+        neighbor->g_value = current_node->g_value + current_node->distance(*neighbor);
+        neighbor->h_value = CalculateHValue(neighbor);
+        open_list.push_back(neighbor);
+        neighbor->visited = true;
     }
 }
 
@@ -110,7 +110,8 @@ void RoutePlanner::AStarSearch() {
         current_node = NextNode();
         if(current_node == end_node){
             m_Model.path = ConstructFinalPath(current_node);
-            return;
+			break;
+            //return;
         }
 		AddNeighbors(current_node);
     }
